@@ -4,7 +4,18 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var indexRouter = require('./routes/index');
+
+const mongoose = require('mongoose');
+require('dotenv').config();
+
 var app = express();
+
+mongoose.set("strictQuery", false);
+const mongoDB = process.env.MONGODB_URI;
+main().catch(err => console.log(err));
+async function main() {
+  await mongoose.connect(mongoDB);
+}
 
 app.use(logger('dev'));
 app.use(express.json());

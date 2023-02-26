@@ -1,24 +1,17 @@
 var express = require('express');
 var router = express.Router();
 
-router.get('/posts', function (req, res, next) {
-    res.send("Sending posts.");
-});
+const userController = require("../controllers/userController");
+const postController = require("../controllers/postController");
 
-router.get('/posts/:id', function (req, res, next) {
-    res.send("Sending details about an specific post.");
-});
+router.get('/posts', postController.getPosts);
 
-router.post("posts/:id/comments/create", function (req, res, next) {
-    res.send("Creating new post.");
-});
+router.get('/posts/:id', postController.getSpecificPost);
 
-router.post("users/create", function (req, res, next) {
-    res.send("Creating new user.");
-});
+router.post("/posts/:id/comments/create", postController.createComment);
 
-router.get("users/login", function (req, res, next) {
-    res.send("Authenticating user.");
-});
+router.post("/users/create", userController.createUser);
+
+router.get("/users/login", userController.logInUser);
 
 module.exports = router;

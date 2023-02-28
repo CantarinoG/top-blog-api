@@ -1,12 +1,36 @@
 const jwt = require('jsonwebtoken');
+const Post = require('../models/post.js');
+const Comment = require('../models/comment.js');
+const async = require('async');
+const { response } = require('express');
 require('dotenv').config();
 
 exports.getPosts = (req, res, next) => {
-    res.send("Sending posts.");
+    Post.find({}, '-_id')
+    .sort({ timestamp: -1})
+    .exec(
+        function (err, posts) {
+            if(err) return res.status(400).json({ error: "Could not find posts, something wrong with the request.", status: 400 });
+            return res.status(200).json({ status: 200, posts });
+        }
+    );
 }
 
 exports.getSpecificPost = (req, res, next) => {
-    res.send("Sending specific posts.");
+    async.parallel({
+        comments(callback) {
+            Comment.find({ post: req.params.id}, '-_id -post')
+            .sort({ timestamp: -1 })
+            .populate('user', '-_id username')
+            .exec(callback);
+        },
+        post(callback) {
+            Post.find({_id: req.params.id}, '-_id').exec(callback);
+        }
+    }, (err, results) => {
+        if(err) return res.status(400).json({ error: "Could not find posts, something wrong with the request.", status: 400 });
+        return res.status(200).json({ status: 200, post: results.post[0], comments: results.comments });
+    });
 }
 
 exports.createComment = (req, res, next) => {

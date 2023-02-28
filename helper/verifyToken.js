@@ -5,9 +5,7 @@ function verifyToken(req, res, next) {
         bearerToken = bearer[1];
         req.token = bearerToken;
         next();
-    } else {
-        return res.status(403).json({ error: 'You must be logged in to access this.'});
-    }
+    } 
 }
 
 module.exports = verifyToken;

@@ -45,28 +45,10 @@ function userCreate(username, password, cb) {
     });
 }
 
-function commentCreate(user, content, cb) {
-    commentDetail = {
-        user,
-        content
-    }
-    const newComment = new Comment(commentDetail);
-    newComment.save(function (err) {
-        if(err) {
-            cb(err, null);
-            return;
-        }
-        console.log("New comment: ", newComment);
-        comments.push(newComment);
-        cb(null, newComment);
-    });
-}
-
-function postCreate(title, content, comments, cb) {
+function postCreate(title, content, cb) {
     postDetail = {
         title,
         content,
-        comments
     }
     const newPost = new Post(postDetail);
     newPost.save(function (err) {
@@ -80,6 +62,24 @@ function postCreate(title, content, comments, cb) {
     });
 }
 
+function commentCreate(user, content, post, cb) {
+    commentDetail = {
+        user,
+        content,
+        post
+    }
+    const newComment = new Comment(commentDetail);
+    newComment.save(function (err) {
+        if(err) {
+            cb(err, null);
+            return;
+        }
+        console.log("New comment: ", newComment);
+        comments.push(newComment);
+        cb(null, newComment);
+    });
+}
+
 function createUsers(cb) {
     async.parallel([
         function(callback) {
@@ -88,30 +88,30 @@ function createUsers(cb) {
     ], cb);
 }
 
+function createPosts(cb) {
+    async.parallel([
+        function(callback) {
+          postCreate("First post!", "Welcome to the blog! :)", callback);
+        }
+    ], cb);
+}
+
 function createComments(cb) {
     async.parallel([
         function(callback) {
-          commentCreate(users[0], "One of the first comments!", callback);
+          commentCreate(users[0], "One of the first comments!", posts[0], callback);
         },
         function(callback) {
-          commentCreate(users[0], "Heeey!", callback);
+          commentCreate(users[0], "Heeey!", posts[0], callback);
         },
         ],
         cb);
 }
 
-function createPosts(cb) {
-    async.parallel([
-        function(callback) {
-          postCreate("First post!", "Welcome to the blog! :)", [comments[0], comments[1]], callback);
-        }
-    ], cb);
-}
-
 async.series([
     createUsers,
-    createComments,
-    createPosts
+    createPosts,
+    createComments
 ],
 // Optional callback
 function(err, results) {

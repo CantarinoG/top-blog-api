@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/user.js');
 const bcrypt = require('bcryptjs');
+require('dotenv').config();
 
 exports.createUser = (req, res, next) => {
     res.send("Creating new user.");
@@ -14,7 +15,7 @@ exports.logInUser = (req, res, next) => {
         bcrypt.compare(password, user.password, (err, hashed) => {
             if (err) return res.status(500).json({error: "Could not compare passwords."});
             if (hashed) {
-                jwt.sign({user: {_id : user._id, username: user.username}}, "manonthemoon", (err, token) => {
+                jwt.sign({user: {_id : user._id, username: user.username}}, process.env.JWT_KEY, (err, token) => {
                     res.json({token});
                 })
             } else {

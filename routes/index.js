@@ -11,8 +11,8 @@ router.get('/posts/:id', postController.getSpecificPost);
 
 router.post("/posts/:id/comments/create", verifyToken, postController.createComment);
 
-router.post("/users/create", userController.createUser);
+router.post("/users/create", verifyToken, userController.createUser);
 
-router.post("/users/login", userController.logInUser);
+router.post("/users/login", verifyToken, userController.logInUser);
 
 module.exports = router;

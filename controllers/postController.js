@@ -35,7 +35,36 @@ exports.getSpecificPost = (req, res, next) => {
 
 exports.createComment = (req, res, next) => {
     jwt.verify(req.token, process.env.JWT_KEY, (err, authData) => {
-        if(err) return res.status(403).json({ error: "Authentication failed.", status: 403 });
-        return res.status(200).json({ authData, status: 200 });
+        if(err) return res.status(403).json({ error: "Authentication failed.", status: 403, userLoggedIn: false});
+        const user = authData.user._id;
+        const post = req.params.id;
+
+        Post.findById(post).exec(function(err, result) {
+
+            if(err) return res.status(400).json({ status: 400, userLoggedIn: true, error: "Something went wrong. This post is not supposed to exist."});
+
+            let content = null;
+            if(req.body.content) {
+                content = req.body.content.trim();
+            }
+        
+            const alerts = [];
+
+            if(!content) {
+                alerts.push("Content is required.");
+            }
+            if(alerts.length) {
+                return res.status(400).json({ status: 400, userLoggedIn: true, alerts });
+            } 
+            const comment = new Comment({
+                user,
+                content,
+                post
+            }).save(err => {
+                if(err) res.status(500).json({ status: 500, userLoggedIn: true, error: "Something went wrong. Comment was not uploaded." });
+                return res.status(200).json({ status: 200, userLoggedIn: true, success: "Comment created!"});
+            })
+
+        });
     });
 }

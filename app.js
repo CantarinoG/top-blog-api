@@ -4,11 +4,19 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var indexRouter = require('./routes/index');
+const bodyParser = require('body-parser');
+const cors = require('cors');
 
 const mongoose = require('mongoose');
 require('dotenv').config();
 
 var app = express();
+
+let corsOptions = {
+  origin: '*',
+  credentials: true,
+  optionsSuccessStatus: 200
+}
 
 mongoose.set("strictQuery", false);
 const mongoDB = process.env.MONGODB_URI;
@@ -17,9 +25,9 @@ async function main() {
   await mongoose.connect(mongoDB);
 }
 
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.json());
+app.use(cors(corsOptions))
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -34,7 +42,7 @@ app.use(function(err, req, res, next) {
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
   res.status(err.status || 500);
-  res.send(err.message);
+  res.json({error: err.message});
 });
 
 module.exports = app;

@@ -30,7 +30,7 @@ exports.createUser = (req, res, next) => {
                         password: hashedPassword
                     }).save(err => {
                         if (err) return res.status(500).json({ status: 500, error: "Could not save user.", userLoggedIn: false });
-                        return res.status(200).json({ status: 200, userLoggedIn: true, success: "User created!"});
+                        return res.status(200).json({ status: 200, userLoggedIn: false, success: "User created!"});
                     });
                 })
 

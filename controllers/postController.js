@@ -6,12 +6,15 @@ const { response } = require('express');
 require('dotenv').config();
 
 exports.getPosts = (req, res, next) => {
-    Post.find({}, '-_id')
+    Post.find({})
     .sort({ timestamp: -1})
     .exec(
         function (err, posts) {
             if(err) return res.status(400).json({ error: "Could not find posts, something wrong with the request.", status: 400 });
-            return res.status(200).json({ status: 200, posts });
+            return res.set({
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+            }).status(200).json({ status: 200, posts: posts });
         }
     );
 }
